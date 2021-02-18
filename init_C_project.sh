@@ -4,15 +4,26 @@ NL=$'\n'
 TAB=$'\t'
 
 echo "Ahhh yes, a new project."
+# Help flag display.
+if [[ $1 == '--help' ]] || [[ $1 == '-h' ]]; then
+    echo "Programme flags for $0 ${NL}"
+    echo "-i${TAB} Ignore potential file overwrite warning."
+    echo "-h, --help${TAB}Help about programme flags."
+    # Don't run the actual script.
+    exit 0
+fi
 
-echo "Warning: This script may overwrite existing files. Please check that "
-echo "you do not have any important file in this directory before you proceed."
-echo "Understood? (y/n)"
-read confirmation
-confirmation=`echo $confirmation | tr '[:upper:]' '[:lower:]'`
-if [[ $confirmation != 'y' && $confirmation != 'yes' ]]
-then
-    exit 1
+# File overwrite warning. Doesn't execute if -i flag is passed.
+if [[ $1 != '-i' ]]; then
+    echo "Warning: This script may overwrite existing files. Please check that "
+    echo "you do not have any important file in this directory before you proceed."
+    echo "Understood? (y/n)"
+    read confirmation
+    confirmation=`echo $confirmation | tr '[:upper:]' '[:lower:]'`
+    if [[ $confirmation != 'y' && $confirmation != 'yes' ]]
+    then
+	exit 2
+    fi
 fi
 
 
@@ -39,7 +50,7 @@ add_makefile_target () {
 
 # CREATING C FILES ===========================================================
 IMPORTS=$'#include <stdio.h>\n#include <stdlib.h>\n'
-HELLO_WORLD=$"int main(int argc, char** argv) {${NL}${NL}    return 0;${NL}}"
+MAIN_FUNC=$"int main(int argc, char** argv) {${NL}${NL}    return 0;${NL}}"
 
 echo "How many C files do you want?"
 read numFiles
@@ -58,7 +69,7 @@ do
     echo "$IMPORTS" >> $fileName
     if [[ $fileNum == 1 ]]
     then
-	echo "$HELLO_WORLD" >> $fileName
+	echo "$MAIN_FUNC" >> $fileName
     fi
     add_makefile_target $fileName
 done
